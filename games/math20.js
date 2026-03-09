@@ -1,0 +1,68 @@
+function genMath20() {
+  const isAdd = Math.random() > 0.5;
+  let a, b, answer, eq;
+  if (isAdd) {
+    a = 5 + Math.floor(Math.random() * 11);  // 5–15
+    b = 1 + Math.floor(Math.random() * (20 - a)); // ensures sum ≤ 20
+    answer = a + b;
+    eq = a + ' + ' + b + ' = ?';
+  } else {
+    a = 10 + Math.floor(Math.random() * 11); // 10–20
+    b = 1 + Math.floor(Math.random() * (a - 1)); // result ≥ 1
+    answer = a - b;
+    eq = a + ' \u2212 ' + b + ' = ?';
+  }
+  const wrongSet = new Set();
+  const deltas = [-3, -2, -1, 1, 2, 3, 4];
+  for (const d of deltas) {
+    const w = answer + d;
+    if (w > 0 && w !== answer && wrongSet.size < 3) wrongSet.add(w);
+  }
+  return { eq, answer, wrong: [...wrongSet] };
+}
+
+function setup_math20(area) {
+  const { eq, answer, wrong } = genMath20();
+
+  addQ(area, 'Solve it fast! 🧮');
+
+  // Equation display card
+  const display = makeDisplay();
+  const mathSpan = document.createElement('span');
+  mathSpan.className = 'g-math';
+  mathSpan.textContent = eq;
+  display.appendChild(mathSpan);
+  area.appendChild(display);
+
+  // Options grid
+  const options = shuffle([answer, ...wrong]);
+  const grid = document.createElement('div');
+  grid.className = 'opts-2';
+
+  options.forEach(num => {
+    const btn = document.createElement('button');
+    btn.className = 'opt opt-number-big';
+    btn.textContent = num;
+
+    btn.addEventListener('click', () => {
+      if (!canAns) return;
+      canAns = false;
+
+      if (num === answer) {
+        btn.classList.add('is-correct', 'hi-correct');
+        onCorrect();
+      } else {
+        btn.classList.add('is-wrong', 'hi-wrong');
+        onWrong();
+        setTimeout(() => {
+          btn.classList.remove('is-wrong', 'hi-wrong');
+          canAns = true;
+        }, 520);
+      }
+    });
+
+    grid.appendChild(btn);
+  });
+
+  area.appendChild(grid);
+}
