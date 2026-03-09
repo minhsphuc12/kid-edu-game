@@ -114,6 +114,31 @@
     .game-card .gn { font-size: .9rem; color: var(--dark); }
     .game-card .gs { font-size: .72rem; color: #aaa; font-family: 'Nunito', sans-serif; font-weight: 700; }
 
+    /* ── Per-question countdown timer ── */
+    .q-timer-wrap {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px; flex-shrink: 0;
+    }
+    .q-timer-svg {
+      position: absolute; inset: 0;
+      transform: rotate(-90deg);
+    }
+    .q-timer-bg  { fill: none; stroke: rgba(255,255,255,.22); stroke-width: 4; }
+    .q-timer-arc {
+      fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round;
+      stroke-dasharray: 113; stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear, stroke .3s;
+    }
+    .q-timer-arc.warn   { stroke: var(--yellow); }
+    .q-timer-arc.danger { stroke: var(--coral);  }
+    .q-timer-num {
+      font-family: 'Fredoka One', cursive; font-size: 1.05rem;
+      color: #fff; position: relative; z-index: 1;
+      transition: color .3s;
+    }
+    .q-timer-num.warn   { color: var(--yellow); }
+    .q-timer-num.danger { color: var(--coral);  }
+
     /* Timer */
     .timer-box {
       width: 100%; max-width: 370px;
@@ -407,6 +432,13 @@
   <div class="game-hdr">
     <button class="back-btn" id="back-btn">←</button>
     <div class="game-ttl" id="game-ttl">Game</div>
+    <div class="q-timer-wrap" id="q-timer-wrap">
+      <svg class="q-timer-svg" viewBox="0 0 44 44">
+        <circle class="q-timer-bg"  cx="22" cy="22" r="18"/>
+        <circle class="q-timer-arc" cx="22" cy="22" r="18" id="q-timer-arc"/>
+      </svg>
+      <span class="q-timer-num" id="q-timer-num">--</span>
+    </div>
     <div class="score-pill">⭐ <span id="game-score">0</span></div>
   </div>
   <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
@@ -461,7 +493,7 @@ function makeDisplay() {
    AGE GROUPS CONFIG
 ═══════════════════════════════════════════════════ */
 const AGE_GROUPS = [
-  { id: '3-4',  label: '3–4',  badge: '🌱', color: '#4ECDC4',
+  { id: '3-4',  label: '3–4',  badge: '🌱', color: '#4ECDC4', timeLimit: 20,
     games: [
       { id: 'colors',   icon: '🎨', name: 'Color Match'  },
       { id: 'shapes',   icon: '🔷', name: 'Shapes!'      },
@@ -469,7 +501,7 @@ const AGE_GROUPS = [
       { id: 'bigsmall', icon: '🐘', name: 'Big & Small'  },
     ]
   },
-  { id: '5-6',  label: '5–6',  badge: '⭐', color: '#FF6B6B',
+  { id: '5-6',  label: '5–6',  badge: '⭐', color: '#FF6B6B', timeLimit: 15,
     games: [
       { id: 'count',    icon: '🔢', name: 'Count It!'    },
       { id: 'letters',  icon: '🔤', name: 'ABC Match'    },
@@ -477,7 +509,7 @@ const AGE_GROUPS = [
       { id: 'oddone',   icon: '🤔', name: 'Odd One Out'  },
     ]
   },
-  { id: '7-8',  label: '7–8',  badge: '🚀', color: '#C3A6FF',
+  { id: '7-8',  label: '7–8',  badge: '🚀', color: '#C3A6FF', timeLimit: 12,
     games: [
       { id: 'math20',   icon: '🧮', name: 'Math Race'    },
       { id: 'spellit',  icon: '✏️', name: 'Spell It!'    },
@@ -485,7 +517,7 @@ const AGE_GROUPS = [
       { id: 'pattern',  icon: '📊', name: 'Patterns'     },
     ]
   },
-  { id: '9-10', label: '9–10', badge: '🏆', color: '#FF8E53',
+  { id: '9-10', label: '9–10', badge: '🏆', color: '#FF8E53', timeLimit: 10,
     games: [
       { id: 'multiply', icon: '✖️', name: 'Times Table'  },
       { id: 'divide',   icon: '➗', name: 'Division'     },
@@ -509,6 +541,10 @@ let canAns      = true;
 let timerSec    = 0;
 let timerTot    = 0;
 let timerTick   = null;
+
+let qTimerSec   = 0;
+let qTimerTot   = 0;
+let qTimerTick  = null;
 
 const TOTAL_Q        = 8;
 const CONF_COLORS    = ['#FF6B6B','#4ECDC4','#FFE66D','#C3A6FF','#FF8E53','#95E1D3'];
@@ -596,10 +632,59 @@ function showScreen(id) {
 }
 
 function goHome() {
+  stopQTimer();
   showScreen('home');
   refreshHomeStars();
   renderCards();
   currentGame = null;
+}
+
+/* ═══════════════════════════════════════════════════
+   PER-QUESTION TIMER
+═══════════════════════════════════════════════════ */
+const Q_TIMER_CIRC = 113; // 2π × r18 ≈ 113.1
+
+function getTimeLimit() {
+  var group = AGE_GROUPS.find(function(g) { return g.id === currentAge; });
+  return group ? group.timeLimit : 15;
+}
+
+function startQTimer() {
+  stopQTimer();
+  qTimerTot = getTimeLimit();
+  qTimerSec = qTimerTot;
+  updateQTimerUI();
+  qTimerTick = setInterval(function() {
+    qTimerSec--;
+    updateQTimerUI();
+    if (qTimerSec <= 0) {
+      stopQTimer();
+      if (canAns) {
+        canAns = false;
+        showFeedback('⏰');
+        setTimeout(function() { qIndex++; nextQ(); }, 830);
+      }
+    }
+  }, 1000);
+}
+
+function stopQTimer() {
+  if (qTimerTick) { clearInterval(qTimerTick); qTimerTick = null; }
+}
+
+function updateQTimerUI() {
+  var numEl = document.getElementById('q-timer-num');
+  var arcEl = document.getElementById('q-timer-arc');
+  if (!numEl || !arcEl) return;
+  var pct = qTimerTot > 0 ? qTimerSec / qTimerTot : 1;
+  numEl.textContent = qTimerSec;
+  arcEl.style.strokeDashoffset = Q_TIMER_CIRC * (1 - pct);
+  var isWarn   = pct <= 0.5 && pct > 0.25;
+  var isDanger = pct <= 0.25;
+  arcEl.classList.toggle('warn',   isWarn);
+  arcEl.classList.toggle('danger', isDanger);
+  numEl.classList.toggle('warn',   isWarn);
+  numEl.classList.toggle('danger', isDanger);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -632,6 +717,7 @@ function nextQ() {
     area.style.transition = 'opacity .26s, transform .26s';
     area.style.opacity    = '1';
     area.style.transform  = 'translateY(0)';
+    startQTimer();
   }, 120);
 }
 
@@ -660,6 +746,7 @@ function dispatchGame(gameId, area) {
    ANSWER HANDLING
 ═══════════════════════════════════════════════════ */
 function onCorrect() {
+  stopQTimer();
   canAns = false;
   sessionSc++;
   document.getElementById('game-score').textContent = sessionSc;
@@ -669,6 +756,7 @@ function onCorrect() {
 }
 
 function onWrong() {
+  stopQTimer();
   canAns = false;  // Modules restore canAns=true after their own timeout
   showFeedback(pick(FB_WRONG));
 }
