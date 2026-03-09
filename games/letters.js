@@ -1,5 +1,5 @@
 function setup_letters(area) {
-  const LETTERS_DATA = 'ABCDEFGHIJKLMNOPQR'.split('').map(u => ({ u, l: u.toLowerCase() }));
+  const LETTERS_DATA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(u => ({ u, l: u.toLowerCase() }));
 
   const target = pick(LETTERS_DATA);
   const showUpper = Math.random() > 0.5;
