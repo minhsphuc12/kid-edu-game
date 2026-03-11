@@ -503,18 +503,20 @@ const AGE_GROUPS = [
   },
   { id: '5-6',  label: '5–6',  badge: '⭐', color: '#FF6B6B', timeLimit: 15,
     games: [
-      { id: 'count',    icon: '🔢', name: 'Count It!'    },
-      { id: 'letters',  icon: '🔤', name: 'ABC Match'    },
-      { id: 'easymath', icon: '➕', name: 'Easy Math'    },
-      { id: 'oddone',   icon: '🤔', name: 'Odd One Out'  },
+      { id: 'count',     icon: '🔢', name: 'Count It!'   },
+      { id: 'letters',   icon: '🔤', name: 'ABC Match'   },
+      { id: 'easymath',  icon: '➕', name: 'Easy Math'   },
+      { id: 'oddone',    icon: '🤔', name: 'Odd One Out' },
+      { id: 'storymath', icon: '📖', name: 'Story Math'  },
     ]
   },
   { id: '7-8',  label: '7–8',  badge: '🚀', color: '#C3A6FF', timeLimit: 12,
     games: [
-      { id: 'math20',   icon: '🧮', name: 'Math Race'    },
-      { id: 'spellit',  icon: '✏️', name: 'Spell It!'    },
-      { id: 'flags',    icon: '🌍', name: 'Flag Quiz'    },
-      { id: 'pattern',  icon: '📊', name: 'Patterns'     },
+      { id: 'math20',    icon: '🧮', name: 'Math Race'   },
+      { id: 'spellit',   icon: '✏️', name: 'Spell It!'   },
+      { id: 'flags',     icon: '🌍', name: 'Flag Quiz'   },
+      { id: 'pattern',   icon: '📊', name: 'Patterns'    },
+      { id: 'wordbuild', icon: '🔤', name: 'Word Builder' },
     ]
   },
   { id: '9-10', label: '9–10', badge: '🏆', color: '#FF8E53', timeLimit: 10,
@@ -735,10 +737,12 @@ function dispatchGame(gameId, area) {
     case 'spellit':  setup_spellit(area);  break;
     case 'flags':    setup_flags(area);    break;
     case 'pattern':  setup_pattern(area);  break;
-    case 'multiply': setup_multiply(area); break;
-    case 'divide':   setup_divide(area);   break;
-    case 'capitals': setup_capitals(area); break;
-    case 'sequence': setup_sequence(area); break;
+    case 'multiply':  setup_multiply(area);  break;
+    case 'divide':    setup_divide(area);    break;
+    case 'capitals':  setup_capitals(area);  break;
+    case 'sequence':  setup_sequence(area);  break;
+    case 'storymath': setup_storymath(area); break;
+    case 'wordbuild': setup_wordbuild(area); break;
   }
 }
 
@@ -2100,6 +2104,187 @@ function setup_sequence(area) {
   });
 
   area.appendChild(grid);
+}
+
+/* ═══════════════════════════════════════════════════
+   GAME: Story Math (5-6)
+═══════════════════════════════════════════════════ */
+function setup_storymath(area) {
+  const STORIES = [
+    { tpl: function(a,b) { return '🍎 You have ' + a + ' apples. You get ' + b + ' more. How many apples?'; }, op: '+' },
+    { tpl: function(a,b) { return '🍪 There are ' + a + ' cookies. You eat ' + b + '. How many are left?'; }, op: '-' },
+    { tpl: function(a,b) { return '🐟 ' + a + ' fish are in a pond. ' + b + ' more swim in. How many fish?'; }, op: '+' },
+    { tpl: function(a,b) { return '🎈 You have ' + a + ' balloons. ' + b + ' float away. How many left?'; }, op: '-' },
+    { tpl: function(a,b) { return '⭐ You collect ' + a + ' stars. You find ' + b + ' more. How many stars?'; }, op: '+' },
+    { tpl: function(a,b) { return '🐣 There are ' + a + ' chicks. ' + b + ' hatch more. How many chicks?'; }, op: '+' },
+    { tpl: function(a,b) { return '🍓 You pick ' + a + ' berries. You eat ' + b + '. How many left?'; }, op: '-' },
+    { tpl: function(a,b) { return '🚗 ' + a + ' cars are parked. ' + b + ' drive away. How many cars left?'; }, op: '-' },
+    { tpl: function(a,b) { return '🎁 You have ' + a + ' gifts. You get ' + b + ' more. How many gifts?'; }, op: '+' },
+    { tpl: function(a,b) { return '🐸 ' + a + ' frogs sit on a log. ' + b + ' more jump on. How many frogs?'; }, op: '+' },
+    { tpl: function(a,b) { return '🌸 ' + a + ' flowers are in a vase. ' + b + ' fall out. How many left?'; }, op: '-' },
+    { tpl: function(a,b) { return '🍬 You have ' + a + ' sweets. You give ' + b + ' away. How many left?'; }, op: '-' },
+    { tpl: function(a,b) { return '🚀 ' + a + ' rockets launch. ' + b + ' more take off. How many rockets?'; }, op: '+' },
+    { tpl: function(a,b) { return '🐢 ' + a + ' turtles are on a rock. ' + b + ' slide off. How many left?'; }, op: '-' },
+    { tpl: function(a,b) { return '🎨 You draw ' + a + ' pictures. You draw ' + b + ' more. How many pictures?'; }, op: '+' },
+    { tpl: function(a,b) { return '🐠 There are ' + a + ' fish in a tank. ' + b + ' swim away. How many fish?'; }, op: '-' },
+    { tpl: function(a,b) { return '🍦 You buy ' + a + ' ice creams. You eat ' + b + '. How many left?'; }, op: '-' },
+    { tpl: function(a,b) { return '🐝 ' + a + ' bees are in a hive. ' + b + ' more fly in. How many bees?'; }, op: '+' },
+    { tpl: function(a,b) { return '🌟 ' + a + ' kids have stars. ' + b + ' more kids get stars. How many kids?'; }, op: '+' },
+    { tpl: function(a,b) { return '🐥 ' + a + ' chicks are eating. ' + b + ' join them. How many chicks?'; }, op: '+' },
+  ];
+
+  var story = pick(STORIES);
+  var a, b, answer;
+
+  if (story.op === '+') {
+    a = 1 + Math.floor(Math.random() * 5);
+    b = 1 + Math.floor(Math.random() * (10 - a));
+    answer = a + b;
+  } else {
+    a = 3 + Math.floor(Math.random() * 7);
+    b = 1 + Math.floor(Math.random() * (a - 1));
+    answer = a - b;
+  }
+
+  addQ(area, 'Read the story! 📖');
+
+  var storyCard = document.createElement('div');
+  storyCard.style.cssText = 'background:linear-gradient(135deg,#fff9e6,#fff3cc);border-radius:18px;padding:18px;font-family:Nunito,sans-serif;font-weight:700;font-size:1rem;color:#2D2D2D;line-height:1.7;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.07);width:100%;';
+  storyCard.textContent = story.tpl(a, b);
+  area.appendChild(storyCard);
+
+  var wrongSet = new Set();
+  [-2, -1, 1, 2, 3].forEach(function(d) {
+    var w = answer + d;
+    if (w >= 0 && w !== answer && wrongSet.size < 3) wrongSet.add(w);
+  });
+
+  var grid = document.createElement('div');
+  grid.className = 'opts-2';
+
+  shuffle([answer, ...wrongSet]).forEach(function(num) {
+    var btn = document.createElement('button');
+    btn.className = 'opt opt-number-big';
+    btn.textContent = num;
+    btn.addEventListener('click', function() {
+      if (!canAns) return;
+      canAns = false;
+      if (num === answer) {
+        btn.classList.add('is-correct', 'hi-correct');
+        onCorrect();
+      } else {
+        btn.classList.add('is-wrong', 'hi-wrong');
+        onWrong();
+        setTimeout(function() { btn.classList.remove('is-wrong', 'hi-wrong'); canAns = true; }, 520);
+      }
+    });
+    grid.appendChild(btn);
+  });
+
+  area.appendChild(grid);
+}
+
+/* ═══════════════════════════════════════════════════
+   GAME: Word Builder (7-8)
+═══════════════════════════════════════════════════ */
+function setup_wordbuild(area) {
+  const WORDS = [
+    { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' },
+    { word: 'SUN', emoji: '☀️' }, { word: 'BUS', emoji: '🚌' },
+    { word: 'HEN', emoji: '🐔' }, { word: 'OWL', emoji: '🦉' },
+    { word: 'PIG', emoji: '🐷' }, { word: 'FOX', emoji: '🦊' },
+    { word: 'HAT', emoji: '🎩' }, { word: 'KEY', emoji: '🔑' },
+    { word: 'LOG', emoji: '🪵' }, { word: 'NUT', emoji: '🥜' },
+    { word: 'BEE', emoji: '🐝' }, { word: 'JAM', emoji: '🍓' },
+    { word: 'CUP', emoji: '☕' }, { word: 'MAP', emoji: '🗺️' },
+    { word: 'NET', emoji: '🥅' }, { word: 'POT', emoji: '🪣' },
+    { word: 'WEB', emoji: '🕸️' }, { word: 'GEM', emoji: '💎' },
+    { word: 'ICE', emoji: '🧊' }, { word: 'JET', emoji: '✈️' },
+    { word: 'MOP', emoji: '🧹' }, { word: 'TUB', emoji: '🛁' },
+    { word: 'VAN', emoji: '🚐' }, { word: 'ANT', emoji: '🐜' },
+    { word: 'ARM', emoji: '💪' }, { word: 'EGG', emoji: '🥚' },
+    { word: 'FAN', emoji: '🪭' }, { word: 'GUM', emoji: '🍬' },
+    { word: 'HOP', emoji: '🐰' }, { word: 'HUG', emoji: '🤗' },
+    { word: 'LAP', emoji: '🧘' }, { word: 'MUD', emoji: '💧' },
+    { word: 'NAP', emoji: '😴' }, { word: 'PAW', emoji: '🐾' },
+    { word: 'PEN', emoji: '🖊️' }, { word: 'RUG', emoji: '🛋️' },
+    { word: 'OAK', emoji: '🌳' }, { word: 'PEA', emoji: '🫛' },
+  ];
+
+  var entry = pick(WORDS);
+  var letters = entry.word.split('');
+  var scrambled = shuffle([...letters]);
+  while (scrambled.join('') === entry.word) { scrambled = shuffle([...letters]); }
+
+  addQ(area, 'Spell the word! Tap the letters! ✏️');
+
+  var hintEl = document.createElement('div');
+  hintEl.className = 'g-emoji';
+  hintEl.textContent = entry.emoji;
+  area.appendChild(hintEl);
+
+  var buildRow = document.createElement('div');
+  buildRow.style.cssText = 'display:flex;gap:8px;justify-content:center;margin:8px 0;';
+
+  var slots = letters.map(function() {
+    var slot = document.createElement('div');
+    slot.style.cssText = 'width:52px;height:56px;border-radius:12px;border:3px solid #C3A6FF;display:flex;align-items:center;justify-content:center;font-family:"Fredoka One",cursive;font-size:1.9rem;color:#2D2D2D;background:#f9f5ff;transition:all .15s;';
+    buildRow.appendChild(slot);
+    return slot;
+  });
+  area.appendChild(buildRow);
+
+  var built = [];
+
+  var tileRow = document.createElement('div');
+  tileRow.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px;';
+
+  var tiles = scrambled.map(function(letter) {
+    var tile = document.createElement('button');
+    tile.textContent = letter;
+    tile.style.cssText = 'width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#C3A6FF,#A8D8EA);color:#fff;font-size:1.9rem;font-family:"Fredoka One",cursive;border:none;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.12);transition:all .12s;';
+
+    tile.addEventListener('click', function() {
+      if (!canAns || tile.disabled) return;
+      tile.disabled = true;
+      tile.style.opacity = '0.3';
+      tile.style.transform = 'translateY(3px)';
+      tile.style.boxShadow = 'none';
+
+      built.push(letter);
+      var idx = built.length - 1;
+      slots[idx].textContent = letter;
+      slots[idx].style.background = '#ede0ff';
+      slots[idx].style.borderColor = '#9c6fef';
+
+      if (built.length === letters.length) {
+        if (built.join('') === entry.word) {
+          slots.forEach(function(s) { s.style.background = '#d4f5e9'; s.style.borderColor = '#4ECDC4'; });
+          onCorrect();
+        } else {
+          slots.forEach(function(s) { s.style.background = '#fde8e8'; s.style.borderColor = '#FF6B6B'; });
+          onWrong();
+          setTimeout(function() { resetBoard(); canAns = true; }, 700);
+        }
+      }
+    });
+
+    tileRow.appendChild(tile);
+    return tile;
+  });
+  area.appendChild(tileRow);
+
+  var clearBtn = document.createElement('button');
+  clearBtn.textContent = '⌫ Clear';
+  clearBtn.style.cssText = 'margin:12px auto 0;display:block;padding:8px 22px;border-radius:50px;border:2px solid #e0e0e0;background:#f5f5f5;font-family:"Fredoka One",cursive;font-size:.85rem;color:#888;cursor:pointer;';
+  clearBtn.addEventListener('click', function() { if (canAns) resetBoard(); });
+  area.appendChild(clearBtn);
+
+  function resetBoard() {
+    built.length = 0;
+    slots.forEach(function(s) { s.textContent = ''; s.style.background = '#f9f5ff'; s.style.borderColor = '#C3A6FF'; });
+    tiles.forEach(function(t) { t.disabled = false; t.style.opacity = '1'; t.style.transform = ''; t.style.boxShadow = '0 4px 0 rgba(0,0,0,.12)'; });
+  }
 }
 </script>
 </body>
