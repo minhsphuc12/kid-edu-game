@@ -1,3 +1,5 @@
 .playwright-mcp/
 .claude/
 .cursor
+test-results
+node_modules/
