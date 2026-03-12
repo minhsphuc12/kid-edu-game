@@ -68,6 +68,7 @@
       color: #fff; font-size: 1rem;
     }
     .stars-badge .star { font-size: 1.25rem; }
+    .stars-badge #total-stars-home { font-weight: 800; font-size: 1.1rem; }
 
     /* Age tabs */
     .age-tabs {
@@ -112,7 +113,7 @@
     .game-card:active { transform: translateY(5px) scale(.97); box-shadow: 0 1px 0 rgba(0,0,0,.12); }
     .game-card .gi { font-size: 2.5rem; }
     .game-card .gn { font-size: .9rem; color: var(--dark); }
-    .game-card .gs { font-size: .72rem; color: #aaa; font-family: 'Nunito', sans-serif; font-weight: 700; }
+    .game-card .gs { font-size: .8rem; color: var(--dark); opacity: .85; font-family: 'Nunito', sans-serif; font-weight: 700; }
 
     /* ── Per-question countdown timer ── */
     .q-timer-wrap {
@@ -806,6 +807,11 @@ function endGame() {
   totalStars += earned;
   gameStars[currentGame] = Math.max(gameStars[currentGame] || 0, earned);
 
+  try {
+    localStorage.setItem('totalStars', String(totalStars));
+    localStorage.setItem('gameStars', JSON.stringify(gameStars));
+  } catch (e) {}
+
   document.getElementById('cel-stars').textContent =
     '⭐'.repeat(earned) + '☆'.repeat(3 - earned);
   document.getElementById('cel-total').textContent = totalStars;
@@ -854,6 +860,17 @@ function fireTimerAlert() {
    INIT
 ═══════════════════════════════════════════════════ */
 (function init() {
+  // Load persisted stars
+  try {
+    var ts = localStorage.getItem('totalStars');
+    if (ts != null) totalStars = parseInt(ts, 10) || 0;
+    var gs = localStorage.getItem('gameStars');
+    if (gs) {
+      var parsed = JSON.parse(gs);
+      if (parsed && typeof parsed === 'object') gameStars = parsed;
+    }
+  } catch (e) {}
+
   // Floating background emojis
   var DECOS  = ['⭐','🌈','🎈','🌟','💫','✨','🎀','🍭','🎠','🌺','🦋','🐝'];
   var bgWrap = document.getElementById('bg-deco');
@@ -868,9 +885,10 @@ function fireTimerAlert() {
     bgWrap.appendChild(s);
   });
 
-  // Render home
+  // Render home (and show loaded total stars)
   renderTabs();
   renderCards();
+  refreshHomeStars();
 
   // Timer buttons
   document.getElementById('tbtn-15').addEventListener('click', function() { setTimer(15, 'tbtn-15'); });
