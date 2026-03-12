@@ -1,0 +1,19 @@
+{
+  "name": "KidZone Adventure",
+  "short_name": "KidZone",
+  "description": "Educational games for kids 3–10",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FFFEF0",
+  "theme_color": "#FF6B6B",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
