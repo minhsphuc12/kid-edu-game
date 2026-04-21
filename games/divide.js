@@ -2,16 +2,25 @@ function setup_divide(area) {
   addQ(area, 'Divide and conquer! \u2797');
 
   function genDivide() {
-    const b = 2 + Math.floor(Math.random() * 9);
-    const answer = 1 + Math.floor(Math.random() * 10);
+    const mode = pick(['direct', 'missingDivisor']);
+    const b = 2 + Math.floor(Math.random() * 11);
+    const answer = 2 + Math.floor(Math.random() * 11);
     const a = b * answer;
+    let eq;
+
+    if (mode === 'direct') {
+      eq = a + ' \u00f7 ' + b + ' = ?';
+    } else {
+      eq = a + ' \u00f7 ? = ' + answer;
+    }
+
     const wrongSet = new Set();
-    const deltas = [-4, -3, -2, -1, 1, 2, 3, 4];
+    const deltas = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
     for (const d of shuffle([...deltas])) {
       const w = answer + d;
       if (w > 0 && w !== answer && wrongSet.size < 3) wrongSet.add(w);
     }
-    return { eq: a + ' \u00f7 ' + b + ' = ?', answer, wrong: [...wrongSet] };
+    return { eq, answer, wrong: [...wrongSet] };
   }
 
   const display = makeDisplay();

@@ -1,8 +1,12 @@
 function setup_count(area) {
-  const ANIMALS = ['🐶','🐱','🐰','🦊','🐻','🐼','🐨','🐯','🐸','🐧'];
+  const ANIMALS = [
+    '🐶','🐱','🐰','🦊','🐻','🐼','🐨','🐯','🐸','🐧',
+    '🐵','🦁','🐮','🐷','🐔','🦄','🦉','🦆','🐢','🦋',
+    '🐟','🐬','🦀','🦖','🐙','🦕','🐝','🐞','🦓','🦒'
+  ];
 
   const emoji = pick(ANIMALS);
-  const count = Math.floor(Math.random() * 8) + 2; // 2–9
+  const count = Math.floor(Math.random() * 11) + 2; // 2–12
 
   addQ(area, 'How many ' + emoji + ' do you see? 🤔');
 
@@ -20,10 +24,10 @@ function setup_count(area) {
 
   area.appendChild(wrap);
 
-  // Build set of 8 unique numbers (1–9)
+  // Build set of 8 unique numbers (1–12)
   const numSet = new Set([count]);
   while (numSet.size < 8) {
-    numSet.add(Math.floor(Math.random() * 9) + 1);
+    numSet.add(Math.floor(Math.random() * 12) + 1);
   }
   const numbers = shuffle(Array.from(numSet));
 

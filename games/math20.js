@@ -1,19 +1,31 @@
 function genMath20() {
-  const isAdd = Math.random() > 0.5;
+  const mode = pick(['add', 'sub', 'missingAddend', 'missingSubtrahend']);
   let a, b, answer, eq;
-  if (isAdd) {
-    a = 5 + Math.floor(Math.random() * 11);  // 5–15
-    b = 1 + Math.floor(Math.random() * (20 - a)); // ensures sum ≤ 20
+
+  if (mode === 'add') {
+    a = 5 + Math.floor(Math.random() * 16); // 5–20
+    b = 1 + Math.floor(Math.random() * Math.max(1, 21 - a)); // sum <= 21
     answer = a + b;
     eq = a + ' + ' + b + ' = ?';
-  } else {
-    a = 10 + Math.floor(Math.random() * 11); // 10–20
-    b = 1 + Math.floor(Math.random() * (a - 1)); // result ≥ 1
+  } else if (mode === 'sub') {
+    a = 12 + Math.floor(Math.random() * 17); // 12–28
+    b = 1 + Math.floor(Math.random() * (a - 1));
     answer = a - b;
     eq = a + ' \u2212 ' + b + ' = ?';
+  } else if (mode === 'missingAddend') {
+    a = 2 + Math.floor(Math.random() * 10);
+    answer = 3 + Math.floor(Math.random() * 12);
+    b = a + answer;
+    eq = a + ' + ? = ' + b;
+  } else {
+    b = 2 + Math.floor(Math.random() * 10);
+    answer = 2 + Math.floor(Math.random() * 12);
+    a = b + answer;
+    eq = a + ' \u2212 ? = ' + answer;
   }
+
   const wrongSet = new Set();
-  const deltas = [-3, -2, -1, 1, 2, 3, 4];
+  const deltas = [-4, -3, -2, -1, 1, 2, 3, 4, 5];
   for (const d of deltas) {
     const w = answer + d;
     if (w > 0 && w !== answer && wrongSet.size < 3) wrongSet.add(w);

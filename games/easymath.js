@@ -1,34 +1,56 @@
 function genEasyMath() {
-  let a, b;
-  do {
-    a = 1 + Math.floor(Math.random() * 5);
-    b = 1 + Math.floor(Math.random() * 5);
-  } while (a + b > 10);
-  const answer = a + b;
+  const mode = pick(['add', 'sub', 'missingAddend']);
+  let a, b, answer, prompt, equation, dotsText;
+
+  if (mode === 'add') {
+    do {
+      a = 1 + Math.floor(Math.random() * 7);
+      b = 1 + Math.floor(Math.random() * 7);
+    } while (a + b > 15);
+    answer = a + b;
+    prompt = 'What is ' + a + ' + ' + b + '? ➕';
+    equation = a + ' + ' + b + ' = ?';
+    dotsText = '🟡'.repeat(a) + ' + ' + '🟡'.repeat(b);
+  } else if (mode === 'sub') {
+    a = 4 + Math.floor(Math.random() * 12);
+    b = 1 + Math.floor(Math.random() * (a - 1));
+    answer = a - b;
+    prompt = 'What is ' + a + ' − ' + b + '? ➖';
+    equation = a + ' − ' + b + ' = ?';
+    dotsText = '🟡'.repeat(a) + ' minus ' + '🔹'.repeat(b);
+  } else {
+    b = 1 + Math.floor(Math.random() * 8);
+    answer = 1 + Math.floor(Math.random() * 8);
+    a = b + answer;
+    prompt = 'Find the missing number! 🔍';
+    equation = '? + ' + b + ' = ' + a;
+    dotsText = '🟡'.repeat(a) + ' total, ' + '🔹'.repeat(b) + ' known';
+  }
+
   const wrongSet = new Set();
-  const candidates = [answer - 2, answer - 1, answer + 1, answer + 2, answer + 3];
+  const candidates = [answer - 3, answer - 2, answer - 1, answer + 1, answer + 2, answer + 3, answer + 4];
   for (const c of candidates) {
     if (c > 0 && c !== answer && wrongSet.size < 3) wrongSet.add(c);
   }
-  return { a, b, answer, wrong: [...wrongSet] };
+  return { answer, wrong: [...wrongSet], prompt, equation, dotsText };
 }
 
 function setup_easymath(area) {
-  const { a, b, answer, wrong } = genEasyMath();
+  const { answer, wrong, prompt, equation, dotsText } = genEasyMath();
 
-  addQ(area, 'What is ' + a + ' + ' + b + '? ➕');
+  addQ(area, prompt);
 
   // Equation display card
   const display = makeDisplay();
   const mathSpan = document.createElement('span');
   mathSpan.className = 'g-math';
-  mathSpan.textContent = a + ' + ' + b + ' = ?';
+  mathSpan.textContent = equation;
   display.appendChild(mathSpan);
   area.appendChild(display);
 
   // Dot visual aid
   const dots = document.createElement('div');
-  dots.textContent = '🟡'.repeat(a) + ' + ' + '🟡'.repeat(b);
+  dots.textContent = dotsText;
   dots.style.fontSize = '1.2rem';
   dots.style.textAlign = 'center';
   dots.style.letterSpacing = '2px';

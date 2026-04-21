@@ -1,15 +1,28 @@
 function setup_multiply(area) {
   function genMultiply() {
-    const a = 2 + Math.floor(Math.random() * 9);
-    const b = 1 + Math.floor(Math.random() * 10);
-    const answer = a * b;
+    const mode = pick(['direct', 'missingFactor', 'groups']);
+    const a = 2 + Math.floor(Math.random() * 11);
+    const b = 2 + Math.floor(Math.random() * 11);
+    let answer, eq;
+
+    if (mode === 'direct') {
+      answer = a * b;
+      eq = a + ' \u00D7 ' + b + ' = ?';
+    } else if (mode === 'missingFactor') {
+      answer = b;
+      eq = a + ' \u00D7 ? = ' + (a * b);
+    } else {
+      answer = a * b;
+      eq = b + ' groups of ' + a + ' = ?';
+    }
+
     const wrongSet = new Set();
-    const deltas = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
+    const deltas = [-12, -9, -6, -3, -2, 2, 3, 6, 9, 12];
     for (const d of shuffle([...deltas])) {
       const w = answer + d;
       if (w > 0 && w !== answer && wrongSet.size < 3) wrongSet.add(w);
     }
-    return { eq: a + ' \u00D7 ' + b + ' = ?', answer, wrong: [...wrongSet] };
+    return { eq, answer, wrong: [...wrongSet] };
   }
 
   addQ(area, 'What is the answer? \u2716\uFE0F');
